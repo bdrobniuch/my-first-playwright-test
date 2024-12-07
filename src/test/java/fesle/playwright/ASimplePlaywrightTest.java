@@ -34,5 +34,6 @@ public class ASimplePlaywrightTest {
         Assertions.assertTrue(matchingSearchResults > 0);
         browser.close();
         playwright.close();
+
     }
 }
