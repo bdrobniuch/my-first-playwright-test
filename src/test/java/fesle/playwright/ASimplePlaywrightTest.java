@@ -29,6 +29,7 @@ public class ASimplePlaywrightTest {
         playwright.close();
     }
 
+
     @Test
     void shouldShowThePageTitle(){
 
