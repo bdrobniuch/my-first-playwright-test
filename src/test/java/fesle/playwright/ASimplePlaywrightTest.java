@@ -38,6 +38,7 @@ public class ASimplePlaywrightTest {
 
     }
 
+
     @Test
     void shouldSearchByKeyword() {
 
