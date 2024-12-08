@@ -128,4 +128,41 @@ public class PlaywrightLocatorsTest {
 
     }
 
+    @DisplayName("Locating elements using CSS")
+    @Nested
+    class LocateElementByCSS {
+        private Playwright playwright;
+        private Browser browser;
+        private Page page;
+
+        @BeforeEach
+        void setUp() {
+            playwright = Playwright.create();
+            browser = playwright.chromium().launch(
+                new BrowserType.LaunchOptions()
+                        .setHeadless(false)
+                        .setSlowMo(2000)
+                        .setArgs(Arrays.asList("--no-sandbox","--disable-extensions","--disable-gpu"))
+
+            );
+            page = browser.newPage();
+            page.navigate("https://practicesoftwaretesting.com/contact");
+        }
+
+        @AfterEach
+        void tearDown () {
+            browser.close();
+            playwright.close();
+        }
+
+        @DisplayName("find fist name by #ID")
+        @Test
+        void findByCssId()
+        {
+            page.locator("#first_name").fill("Jane");
+            PlaywrightAssertions.assertThat(page.locator("#first_name")).hasValue("Jane");
+        }
+
+    }
+
 }
