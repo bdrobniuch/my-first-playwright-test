@@ -91,4 +91,41 @@ public class PlaywrightLocatorsTest {
         }
 
     }
+    @DisplayName("Locating elements by testID")
+    @Nested
+    class LocateElementsByTestID {
+        private Playwright playwright;
+        private Browser browser;
+        private Page page;
+
+
+
+        @BeforeEach
+        void setUp(){
+            playwright = Playwright.create();
+            playwright.selectors().setTestIdAttribute("data-test");
+            browser = playwright.chromium().launch(
+                    new BrowserType.LaunchOptions()
+                            .setSlowMo(2000)
+                            .setHeadless(false)
+                            .setArgs(Arrays.asList("--no-sandbox","--disable-extensions","--disable-gpu"))
+            );
+            page = browser.newPage();
+            page.navigate("https://practicesoftwaretesting.com/");
+        }
+
+        @AfterEach
+        void tearDown() {
+            browser.close();
+            playwright.close();
+        }
+        @DisplayName("find Search field by test ID")
+        @Test
+        void findSearchByID() {
+            page.getByTestId("search-query").fill("test");
+            page.getByTestId("search-submit").click();
+        }
+
+    }
+
 }
