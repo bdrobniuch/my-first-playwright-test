@@ -53,10 +53,7 @@ public class ASimplePlaywrightTest {
                                             "--disable-gpu",
                                             "--disable-extensions"))
                     );
-        }
-    }
     */
-
     @Test
     void shouldShowThePageTitle(){
 
