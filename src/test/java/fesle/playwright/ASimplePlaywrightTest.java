@@ -1,20 +1,44 @@
 package fesle.playwright;
 
 
-import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.Page;
-import com.microsoft.playwright.junit.Options;
-import com.microsoft.playwright.junit.OptionsFactory;
-import com.microsoft.playwright.junit.UsePlaywright;
+import com.microsoft.playwright.*;
+
 import com.microsoft.playwright.options.LoadState;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.Arrays;
 
-@UsePlaywright(ASimplePlaywrightTest.CustomOptions.class)
+//@UsePlaywright(ASimplePlaywrightTest.CustomOptions.class)
 public class ASimplePlaywrightTest {
 
+    private static Playwright playwright;
+    private static Browser browser;
+    private static BrowserContext browserContext;
+
+    Page page;
+
+    @BeforeAll
+    public static void setUpBrowser() {
+        playwright = Playwright.create();
+        browser = playwright.chromium().launch(
+                new BrowserType.LaunchOptions()
+                        .setHeadless(false)
+                        .setArgs(Arrays.asList("--no-sandbox","--disable-extensions","--disable-gpu"))
+                );
+                browserContext = browser.newContext();
+    }
+
+    @BeforeEach
+    public void setUpPage() {
+        page = browserContext.newPage();
+    }
+
+    @AfterAll
+    public static void tearDown(){
+        browser.close();
+        playwright.close();
+    }
+    /*
     public static class CustomOptions implements OptionsFactory {
         @Override
         public Options getOptions() {
@@ -31,10 +55,10 @@ public class ASimplePlaywrightTest {
                     );
         }
     }
-
+    */
 
     @Test
-    void shouldShowThePageTitle(Page page){
+    void shouldShowThePageTitle(){
 
         page.navigate("https://practicesoftwaretesting.com/");
         String title = page.title();
@@ -44,7 +68,7 @@ public class ASimplePlaywrightTest {
 
 
     @Test
-    void shouldSearchByKeyword(Page page) {
+    void shouldSearchByKeyword() {
 
         page.navigate("https://practicesoftwaretesting.com/");
         page.locator("[placeholder=Search]").fill("Pliers");
