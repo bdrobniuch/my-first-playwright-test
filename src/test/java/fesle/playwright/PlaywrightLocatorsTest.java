@@ -8,6 +8,7 @@ import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import org.junit.jupiter.api.*;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class PlaywrightLocatorsTest {
     @DisplayName("Locating elements by text")
@@ -161,6 +162,22 @@ public class PlaywrightLocatorsTest {
         {
             page.locator("#first_name").fill("Jane");
             PlaywrightAssertions.assertThat(page.locator("#first_name")).hasValue("Jane");
+        }
+
+        @DisplayName("find Submit by Class")
+        @Test
+        void findSearch(){
+            page.locator("#first_name").fill("Jane");
+            page.locator(".btnSubmit").click();
+            List<String> alertMessages = page.locator(".alert").allTextContents();
+            Assertions.assertTrue(!alertMessages.isEmpty());
+        }
+
+        @DisplayName("find text by attribute")
+        @Test
+        void findLastName () {
+            page.locator("input[placeholder='Your last name *']").fill("Doe");
+            PlaywrightAssertions.assertThat(page.locator("#last_name")).hasValue("Doe");
         }
 
     }
