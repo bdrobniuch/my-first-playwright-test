@@ -23,6 +23,7 @@ public class ASimplePlaywrightTest {
         browser = playwright.chromium().launch(
                 new BrowserType.LaunchOptions()
                         .setHeadless(false)
+                        .setSlowMo(2000)
                         .setArgs(Arrays.asList("--no-sandbox","--disable-extensions","--disable-gpu"))
                 );
                 browserContext = browser.newContext();
