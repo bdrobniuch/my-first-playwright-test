@@ -12,7 +12,7 @@ public class ChromeOptions implements OptionsFactory {
     public Options getOptions(){
         return new Options().setLaunchOptions(
                 new BrowserType.LaunchOptions()
-                        .setSlowMo(2000)
+                        //.setSlowMo(2000)
                         .setHeadless(false)
                         .setArgs(Arrays.asList("--no-sandbox","--disable-extensions","--disable-gpu"))
         )
