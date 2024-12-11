@@ -2,12 +2,14 @@ package fesle.playwright;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.junit.UsePlaywright;
+import com.microsoft.playwright.options.LoadState;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -65,7 +67,23 @@ public class PlaywrightAssertionTests {
                             .isLessThan(1000.0));
         }
 
+        @DisplayName("Should Sort In Alphabetical Order")
+        @Test
+        void shouldSortInAlphabeticalOrder(Page page) {
+            page.getByLabel("Sort").selectOption("Name (A - Z)");
+            page.waitForLoadState(LoadState.NETWORKIDLE);
+            List<String> productNames = page.getByTestId("product-name").allTextContents();
+            Assertions.assertThat(productNames).isSortedAccordingTo(String.CASE_INSENSITIVE_ORDER);
+        }
 
+        @DisplayName("Should Sort In Reverse Alphabetical Order")
+        @Test
+        void shouldSortInReverseAlphabeticalOrder(Page page) {
+            page.getByLabel("Sort").selectOption("Name (Z - A)");
+            page.waitForLoadState(LoadState.NETWORKIDLE);
+            List<String> productNames = page.getByTestId("product-name").allTextContents();
+            Assertions.assertThat(productNames).isSortedAccordingTo(Comparator.reverseOrder());
+        }
     }
 
 }
