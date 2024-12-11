@@ -3,6 +3,8 @@ package fesle.playwright;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import com.microsoft.playwright.junit.UsePlaywright;
+import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.WaitForSelectorState;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -53,6 +55,19 @@ public class PlaywrightWaitTests {
             var screwDriverFilter = page.getByLabel("Screwdriver");
             screwDriverFilter.click();
             PlaywrightAssertions.assertThat(screwDriverFilter).isChecked();
+        }
+
+        @DisplayName("Should Filter Products By Category")
+        @Test
+        void shouldFilterProductsByCategory(Page page) {
+            page.getByRole(AriaRole.MENUBAR).getByText("Categories").click();
+            page.getByRole(AriaRole.MENUBAR).getByText("Power Tools").click();
+            page.waitForSelector(".card",
+                new Page.WaitForSelectorOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(2000)
+            );
+            var filteredProducts = page.getByTestId("product-name").allInnerTexts();
+
+            Assertions.assertThat(filteredProducts).contains("Sheet Sander", "Belt Sander", "Circular Saw");
         }
     }
 
