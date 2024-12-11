@@ -71,4 +71,38 @@ public class PlaywrightWaitTests {
         }
     }
 
+    @Nested
+    class WaitingForElementsToAppearAndDisappear {
+
+        @BeforeEach
+        void openContactPage(Page page) {
+            page.navigate("https://practicesoftwaretesting.com");
+        }
+
+        @DisplayName("It should display a toaster message when an item is add to the cart")
+        @Test
+        void shouldDisplayToasterMessage(Page page)
+        {
+            page.getByText("Bolt Cutters").click();
+            page.getByText("Add to cart").click();
+
+            //wait to the toaster message to appear
+            PlaywrightAssertions.assertThat(page.getByRole(AriaRole.ALERT)).isVisible();
+            PlaywrightAssertions.assertThat(page.getByRole(AriaRole.ALERT)).hasText("Product added to shopping cart.");
+
+            page.waitForCondition( () -> page.getByRole(AriaRole.ALERT).isHidden());
+        }
+
+        @Test
+        @DisplayName("Should update the cart item count")
+        void shouldUpdateTheCartItemCount(Page page) {
+            page.getByText("Bolt Cutters").click();
+            page.getByText("Add to cart").click();
+
+            page.waitForCondition(() -> page.getByTestId("cart-quantity").textContent().equals("1"));
+            //PlaywrightAssertions.assertThat(page.getByTestId("cart-quantity")).hasText("1");
+        }
+
+    }
+
 }
