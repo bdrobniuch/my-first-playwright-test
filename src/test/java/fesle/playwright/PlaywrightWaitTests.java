@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.Comparator;
 import java.util.List;
 
 @UsePlaywright(ChromeOptions.class)
@@ -81,8 +82,7 @@ public class PlaywrightWaitTests {
 
         @DisplayName("It should display a toaster message when an item is add to the cart")
         @Test
-        void shouldDisplayToasterMessage(Page page)
-        {
+        void shouldDisplayToasterMessage(Page page) {
             page.getByText("Bolt Cutters").click();
             page.getByText("Add to cart").click();
 
@@ -90,7 +90,7 @@ public class PlaywrightWaitTests {
             PlaywrightAssertions.assertThat(page.getByRole(AriaRole.ALERT)).isVisible();
             PlaywrightAssertions.assertThat(page.getByRole(AriaRole.ALERT)).hasText("Product added to shopping cart.");
 
-            page.waitForCondition( () -> page.getByRole(AriaRole.ALERT).isHidden());
+            page.waitForCondition(() -> page.getByRole(AriaRole.ALERT).isHidden());
         }
 
         @Test
@@ -101,6 +101,47 @@ public class PlaywrightWaitTests {
 
             page.waitForCondition(() -> page.getByTestId("cart-quantity").textContent().equals("1"));
             //PlaywrightAssertions.assertThat(page.getByTestId("cart-quantity")).hasText("1");
+        }
+
+    }
+
+    @Nested
+    class WaitingForAPICalls {
+
+        @BeforeEach
+        void openContactPage(Page page) {
+            page.navigate("https://practicesoftwaretesting.com");
+        }
+
+        @Test
+        @DisplayName("Sort by descending price")
+        void sortByDescendingPrice(Page page){
+
+            //sort the prices
+            //https://api.practicesoftwaretesting.com/products?sort=price,desc&between=price,1,100&page=0
+            page.waitForResponse("**/products?sort**",
+                    () ->
+                        page.getByTestId("sort").selectOption("Price (High - Low)")
+                    );
+
+
+            //find all the prices on the page
+            var productPrices = page.getByTestId("product-price")
+                    .allInnerTexts()
+                    .stream()
+                    .map(WaitingForAPICalls::extractPrice)
+                    .toList();
+
+            System.out.println("Product prices: "+productPrices);
+
+            Assertions.assertThat(productPrices)
+                    .isNotEmpty()
+                    .isSortedAccordingTo(Comparator.reverseOrder());
+
+        }
+
+        private static double extractPrice(String price) {
+            return Double.parseDouble(price.replace("$",""));
         }
 
     }
