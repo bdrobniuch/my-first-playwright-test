@@ -1,10 +1,17 @@
 package fesle.playwright;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.microsoft.playwright.*;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -71,6 +78,31 @@ public class PlaywrightRestAPITest {
 
                             )
             );
+        }
+
+        @DisplayName("Check presence of known products")
+        @ParameterizedTest(name = "Checking product = {0}")
+                @MethodSource("products")
+                void checkKnownProduct(Product product)
+        {
+
+        }
+
+        static Stream<Product> products() {
+            APIResponse response = requestContext.get("/products?page=2");
+            Assertions.assertThat(response.status()).isEqualTo(200);
+
+            JsonObject jsonObject = new Gson().fromJson(response.text(), JsonObject.class);
+            JsonArray data = jsonObject.getAsJsonArray("data");
+
+            return data.asList().stream()
+                    .map(jsonElement -> {
+                        JsonObject productJson = jsonElement.getAsJsonObject();
+                        return new Product(
+                                productJson.get("name").getAsString(),
+                                productJson.get("price").getAsDouble()
+                        );
+                    });
         }
 
     }
