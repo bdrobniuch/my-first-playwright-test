@@ -14,10 +14,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+
 @UsePlaywright
 public class RegisterUserAPITest {
 
     private APIRequestContext request;
+    private  Gson gson = new Gson();
 
     @BeforeEach
     void setup(Playwright playwright){
@@ -46,12 +50,12 @@ public class RegisterUserAPITest {
         );
 
         String responseBody = response.text();
-        Gson gson = new Gson();
+
         User createdUser = gson.fromJson(responseBody, User.class);
 
         JsonObject responseObject = gson.fromJson(responseBody, JsonObject.class);
 
-        SoftAssertions.assertSoftly(softly -> {
+        assertSoftly(softly -> {
             softly.assertThat(response.status())
                     .as("Registration should create a 201 status code")
                     .isEqualTo(201);
@@ -90,6 +94,16 @@ public class RegisterUserAPITest {
                 RequestOptions.create()
                         .setHeader("Content-Type", "application/json")
                         .setData(userWithNoName)
+        );
+
+        JsonObject responseObject = gson.fromJson(response.text(), JsonObject.class);
+
+        assertSoftly(softly -> {
+                    softly.assertThat(response.status()).isEqualTo(422);
+                    softly.assertThat(responseObject.has("first_name")).isTrue();
+                    softly.assertThat(responseObject.get("first_name").getAsString()).isEqualTo(    "The first name field is required.");
+                }
+
         );
     }
 }
