@@ -85,6 +85,20 @@ public class PlaywrightRestAPITest {
                 @MethodSource("products")
                 void checkKnownProduct(Product product)
         {
+            page.navigate("https://practicesoftwaretesting.com/");
+            //page.fill("[placeholder='Saerch']", product.name);
+            page.getByPlaceholder("Search").fill(product.name);
+            page.click("button:has-text('Search')");
+
+            //Check that the product appears with the correct name and price
+
+            Locator productCart = page.locator(".card")
+                    .filter(
+                            new Locator.FilterOptions()
+                                    .setHasText(product.name)
+                                    .setHasText(Double.toString(product.price))
+                    );
+            assertThat(productCart).isVisible();
 
         }
 
