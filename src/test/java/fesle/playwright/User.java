@@ -46,4 +46,20 @@ public record User(String first_name,
                 fake.internet().emailAddress()
         );
     }
+
+    public Object withPassword(String password) {
+        return new User(
+                 first_name,
+                 last_name,
+                 address,
+                 city,
+                 state,
+                 country,
+                 postcode,
+                 phone,
+                 dob,
+                 password,
+                 email
+        );
+    }
 }
