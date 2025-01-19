@@ -1,12 +1,15 @@
 package fesle.playwright;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.microsoft.playwright.APIRequest;
 import com.microsoft.playwright.APIRequestContext;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.junit.UsePlaywright;
 import com.microsoft.playwright.options.RequestOptions;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertionError;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,11 +45,28 @@ public class RegisterUserAPITest {
                         .setData(validUser)
         );
 
-        Assertions.assertThat(response.status()).isEqualTo(201);
         String responseBody = response.text();
         Gson gson = new Gson();
         User createdUser = gson.fromJson(responseBody, User.class);
 
-        Assertions.assertThat(createdUser).isEqualTo(validUser.withPassword(null));
+        JsonObject responseObject = gson.fromJson(responseBody, JsonObject.class);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(response.status())
+                    .as("Registration should create a 201 status code")
+                    .isEqualTo(201);
+            softly.assertThat(createdUser)
+                    .as("created user should match the specified user without a passwoerd")
+                    .isEqualTo(validUser.withPassword(null));
+            softly.assertThat(responseObject.has("password"))
+                            .as("no password should be returned")
+                                    .isFalse();
+            softly.assertThat(responseObject.get("id").getAsString())
+                    .as("Registered user should have an id")
+                    .isNotEmpty();
+            softly.assertThat(
+                    response.headers().get("content-type")
+            ).contains("application/json");
+        });
     }
 }
