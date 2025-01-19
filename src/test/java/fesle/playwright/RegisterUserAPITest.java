@@ -69,4 +69,13 @@ public class RegisterUserAPITest {
             ).contains("application/json");
         });
     }
+
+    @Test
+    void first_name_is_mandatory() {
+        User userWithNoName = new User(
+                null,
+                "Smith",
+
+        )
+    }
 }
