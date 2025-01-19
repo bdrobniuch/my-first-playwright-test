@@ -75,7 +75,21 @@ public class RegisterUserAPITest {
         User userWithNoName = new User(
                 null,
                 "Smith",
+                "address",
+                "city",
+                "state",
+                "country",
+                "123",
+                "123123",
+                "1990-02-02",
+                "password",
+                "email@wp.pl"
+        );
 
-        )
+        var response = request.post("/users/register",
+                RequestOptions.create()
+                        .setHeader("Content-Type", "application/json")
+                        .setData(userWithNoName)
+        );
     }
 }
