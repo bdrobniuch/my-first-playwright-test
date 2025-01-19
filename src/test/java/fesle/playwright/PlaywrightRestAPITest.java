@@ -1,6 +1,7 @@
 package fesle.playwright;
 
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Route;
 import com.microsoft.playwright.junit.UsePlaywright;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,6 +19,13 @@ public class PlaywrightRestAPITest {
         @Test
         @DisplayName("When a search returns a single product")
         void whenASingleItemIsFound(Page page){
+            page.route("**/products/search?q=Pliers", route -> {
+                route.fulfill(
+                        new Route.FulfillOptions().setBody(
+                                MockSearchResponses.RESPONSE_WITH_A_SINGLE_ENTRY
+                        ).setStatus(200)
+                );
+            });
             page.navigate("https://practicesoftwaretesting.com/");
             page.getByPlaceholder("Search").fill("Pliers");
             page.getByPlaceholder("Search").press("Enter");
