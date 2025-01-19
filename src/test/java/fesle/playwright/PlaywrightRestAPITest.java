@@ -1,16 +1,32 @@
 package fesle.playwright;
 
-import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Route;
-import com.microsoft.playwright.junit.UsePlaywright;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import com.microsoft.playwright.*;
+import org.junit.jupiter.api.*;
+
+import java.util.Arrays;
+import java.util.HashMap;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-@UsePlaywright(ChromeOptions.class)
+
 public class PlaywrightRestAPITest {
+
+    protected static Playwright playwright;
+    protected static  Browser browser;
+    protected static  Page page;
+
+    @BeforeAll
+    static void setUpBrowser(){
+        playwright = Playwright.create();
+        playwright.selectors().setTestIdAttribute("data-test");
+        browser = playwright.chromium().launch(
+                new BrowserType.LaunchOptions()
+                        .setHeadless(false)
+                        .setArgs(Arrays.asList("--no-sandbox","--disable-extensions","--disable-gpu"))
+        );
+        page = browser.newPage();
+
+    }
 
     @DisplayName("playwright let us to mock out API responses")
     @Nested
@@ -18,7 +34,7 @@ public class PlaywrightRestAPITest {
 
         @Test
         @DisplayName("When a search returns a single product")
-        void whenASingleItemIsFound(Page page){
+        void whenASingleItemIsFound(){
             page.route("**/products/search?q=Pliers", route -> {
                 route.fulfill(
                         new Route.FulfillOptions().setBody(
@@ -33,6 +49,30 @@ public class PlaywrightRestAPITest {
             assertThat(page.getByTestId("product-name")).hasCount(1);
             assertThat(page.getByTestId("product-name")).hasText("Super Pliers");
         }
+    }
+
+    @Nested
+    class MakingAPICalls {
+
+        record Product(String name, Double price) {
+
+        }
+
+        private static APIRequestContext requestContext;
+
+        @BeforeAll
+        public static void setupRequestContext() {
+            requestContext = playwright.request().newContext(
+                    new APIRequest.NewContextOptions()
+                            .setBaseURL("https://api.practicesoftwaretesting.com/")
+                            .setExtraHTTPHeaders(new HashMap<>() {{
+                                put("Accept","application/json");
+                                                 }}
+
+                            )
+            );
+        }
+
     }
 
 }
