@@ -110,4 +110,36 @@ public class PlaywrightPageObjectTest {
             }
         }
     }
+
+    @Nested
+    class WhenAddingItemsToTheCart {
+        @DisplayName("Without Page Objects")
+        @Test
+        void withoutPageObjects() {
+            //Search for pliers
+            page.waitForResponse("**/products/search?q=pliers", () -> {
+                page.getByPlaceholder("Search").fill("pliers");
+                page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Search")).click();
+            });
+            //Show the details page
+            page.locator(".card").getByText("Combination Pliers").click();
+
+            //Increase cart quantity
+            page.getByTestId("increase-quantity").click();
+            page.getByTestId("increase-quantity").click();
+
+            //Add to cart
+            page.getByTestId("add-to-cart").click();
+
+            page.waitForCondition(()-> page.getByTestId("cart-quantity").textContent().equals("3"));
+
+            //Open the cart
+            page.getByTestId("nav-cart").click();
+
+            //check cart context
+            assertThat(page.locator(".product-title").getByText("Combination Pliers")).isVisible();
+            assertThat(page.getByTestId("cart-quantity").getByText("3")).isVisible();
+
+        }
+    }
 }
