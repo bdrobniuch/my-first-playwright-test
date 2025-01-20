@@ -12,6 +12,9 @@ public class LoginWithRegisteredUserTest extends PlaywrightTestCase {
     void should_login_registered_user() {
         //register user via API
         User user = User.randomUser();
+        UserAPIClient userAPIClient = new UserAPIClient(page);
+        userAPIClient.registerUser(user);
+
         //login using login page
         LoginPage loginPage = new LoginPage(page);
         loginPage.open();
