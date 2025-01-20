@@ -121,14 +121,19 @@ public class PlaywrightPageObjectTest {
             SearchComponent searchComponent = new SearchComponent(page);
             ProductList productList = new ProductList(page);
             ProductDetails productDetails = new ProductDetails(page);
+            NavBar navBar = new NavBar(page);
 
             searchComponent.searchBy("pliers");
 
             productList.viewProductDetails("Combination Pliers");
 
-            productDetails.increaseQuantityBy(3);
+            productDetails.increaseQuantityBy(2);
             productDetails.addToCart();
 
+            navBar.openCart();
+
+            assertThat(page.locator(".product-title").getByText("Combination Pliers")).isVisible();
+            assertThat(page.getByTestId("cart-quantity").getByText("3")).isVisible();
         }
     }
 
@@ -181,10 +186,22 @@ public class PlaywrightPageObjectTest {
 
             page.waitForResponse(
                     response -> response.url().contains("/carts") && response.request().method().equals("POST"),
-                            ()-> page.getByTestId("add-to-cart").click();
+                            ()-> page.getByTestId("add-to-cart").click()
             );
 
 
+        }
+    }
+
+    class NavBar {
+        private final Page page;
+
+        NavBar(Page page) {
+            this.page = page;
+        }
+
+        public void openCart() {
+            page.getByTestId("nav-cart").click();
         }
     }
 }
