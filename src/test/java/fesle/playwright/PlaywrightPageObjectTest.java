@@ -4,8 +4,6 @@ import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.AriaRole;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -83,32 +81,7 @@ public class PlaywrightPageObjectTest {
                     .contains("Tape Measure 7.5m", "Measuring Tape", "Tape Measure 5m");
         }
 
-        class SearchComponent {
-            private final Page page;
 
-            SearchComponent(Page page) {
-                this.page = page;
-            }
-
-            public void searchBy(String tape) {
-                page.waitForResponse("**/products/search?q=tape", () -> {
-                    page.getByPlaceholder("Search").fill("tape");
-                    page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Search")).click();
-                });
-            }
-        }
-
-        class ProductList {
-            private final Page page;
-
-            ProductList(Page page) {
-                this.page = page;
-            }
-
-            public List<String>  getProductNames() {
-                return page.getByTestId("product-name").allInnerTexts();
-            }
-        }
     }
 
     @Nested
@@ -139,6 +112,78 @@ public class PlaywrightPageObjectTest {
             //check cart context
             assertThat(page.locator(".product-title").getByText("Combination Pliers")).isVisible();
             assertThat(page.getByTestId("cart-quantity").getByText("3")).isVisible();
+
+        }
+
+        @DisplayName("With Page Objects")
+        @Test
+        void withPageObjects() {
+            SearchComponent searchComponent = new SearchComponent(page);
+            ProductList productList = new ProductList(page);
+            ProductDetails productDetails = new ProductDetails(page);
+
+            searchComponent.searchBy("pliers");
+
+            productList.viewProductDetails("Combination Pliers");
+
+            productDetails.increaseQuantityBy(3);
+            productDetails.addToCart();
+
+        }
+    }
+
+    class SearchComponent {
+        private final Page page;
+
+        SearchComponent(Page page) {
+            this.page = page;
+        }
+
+        public void searchBy(String tape) {
+            page.waitForResponse("**/products/search?q=" +tape, () -> {
+                page.getByPlaceholder("Search").fill(tape);
+                page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Search")).click();
+            });
+        }
+    }
+
+    class ProductList {
+        private final Page page;
+
+        ProductList(Page page) {
+            this.page = page;
+        }
+
+        public List<String>  getProductNames() {
+            return page.getByTestId("product-name").allInnerTexts();
+        }
+
+        public void viewProductDetails(String productName) {
+            page.locator(".card").getByText(productName).click();
+        }
+    }
+
+    class ProductDetails {
+        private final Page page;
+
+        ProductDetails(Page page) {
+            this.page = page;
+        }
+
+        public void increaseQuantityBy(int quantity) {
+            while (quantity>0) {
+                page.getByTestId("increase-quantity").click();
+                quantity--;
+            }
+        }
+
+        public void addToCart() {
+
+            page.waitForResponse(
+                    response -> response.url().contains("/carts") && response.request().method().equals("POST"),
+                            ()-> page.getByTestId("add-to-cart").click();
+            );
+
 
         }
     }
