@@ -56,7 +56,7 @@ public record User(String first_name,
         );
     }
 
-    public Object withPassword(String password) {
+    public User withPassword(String password) {
         return new User(
                  first_name,
                  last_name,

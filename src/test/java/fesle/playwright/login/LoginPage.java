@@ -25,4 +25,8 @@ public class LoginPage {
     public String title() {
         return page.getByTestId("page-title").textContent();
     }
+
+    public String loginPageError() {
+        return page.getByTestId("login-error").textContent();
+    }
 }
